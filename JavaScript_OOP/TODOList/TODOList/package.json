@@ -1,0 +1,10 @@
+{
+  "name": "TODOList",
+  "version": "0.0.0",
+  "description": "TODOList",
+  "main": "app.js",
+  "author": {
+    "name": "Agop",
+    "email": ""
+  }
+}

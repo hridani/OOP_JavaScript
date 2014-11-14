@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Canvas Geometry API</title>
+    <link href="styles.css" rel="stylesheet" />
+    <script src="Shapes.js"></script>
+    <script src="GeometryApi.js"></script>
+    
+</head>
+<body>
+    <section>
+        <form>
+            <fieldset>
+                <div>
+                    <label for="x">X: </label>
+                    <input name="x" type="text" id="x" value="0">
+                    <label for="y">Y: </label>
+                    <input name="y" type="text" id="y" value="0">
+                    <label for="color">Color: </label>
+                    <input name="color" type="color" id="color">
+                </div>
+                <div>
+                    <label>Shape</label>
+                    <select id="shape" name="shape" onchange="addInputFields()">
+                        <option value="0">Point</option>
+                        <option value="1">Triangle</option>
+                        <option value="2">Rectangle</option>
+                        <option value="3">Circle</option>
+                        <option value="4">Segment</option>
+                    </select>
+                </div>
+
+                <div id="choiceShape">
+                </div>
+
+
+                <div>
+                    <select id="shapes" name="shapes" size="10"></select>
+                    <div id="buttons">
+                        <button id="up" type="button" onclick=" UpShape()">&uArr;</button>
+                        <button id="down" type="button" onclick="downShape()">&dArr;</button>
+                        <button id="remove" type="button" onclick="RemoveShape()">-</button>
+                    </div>
+                </div>
+                <button id="addButton" type="button" value="Add" onclick="addNewShape()">Add</button>
+            </fieldset>
+        </form>
+    </section>
+    <section>
+        <canvas id="shapesCanvas"></canvas>
+    </section>
+</body>
+</html>

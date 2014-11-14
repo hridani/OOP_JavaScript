@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Draw shapes</title>
+    <script src="Shapes.js"></script>
+</head>
+<body>
+    <h1>Draw different shapes on Canvas</h1>
+    <canvas id="shapesCanvas" width="500" height="400" style="border:1px solid black"></canvas>
+    <script>
+        var point = new Point(250, 200, "#000000");
+        point.draw();
+        var circle = new Circle(175, 175, 50, "#FF0000");
+        circle.draw();
+        var triangle = new Triangle(100, 110, 180, 10, 300, 110, "#0000FF");
+        triangle.draw();
+        var rectangle = new Rectangle(20, 34, 100, 167, "#00FF00");
+        rectangle.draw();
+        var segment = new Segment(120, 260, 200, 8, "#FFFF00");
+        segment.draw();
+   
+    </script>
+</body>
+</html>
