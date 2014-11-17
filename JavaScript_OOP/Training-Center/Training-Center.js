@@ -113,18 +113,22 @@
                 var deleteArgs = cmdArgs.splice(1).join(' ');
                 switch (objectType) {
                     case 'Trainer':
+                        var trainer = findTrainerByUsername(deleteArgs);
+                        if (typeof trainer === 'undefined') {
+                            throw new Error('Undefined trainert to delete: ' + trainer);
+                        }
                         _trainings.forEach(function (item, index) {
-                            if (deleteArgs.localeCompare(item.getTrainer().getUsername()) == 0) {
-                                _trainings[index].setTrainer();
+                            if (item.getTrainer()) {
+                                
+                                if (deleteArgs.localeCompare(item.getTrainer().getUsername()) == 0) {
+                                    _trainings[index].setTrainer();
+                                }
                             }
                         });
-                        var indexTrajner = _trainers.filter(function (trainer, index) {
-                            if (trainer.getUsername() === deleteArgs)
-                                return index;
-                            return -1;
-                        });
-                        _trainers.splice(indexTrajner, 1);
-                        
+                        var indexTrainer = _trainers.indexOf(trainer);
+                        _trainers.splice(indexTrainer, 1);
+                        //    indexTrainer = _uniqueTrainerUsernames.indexOf(trainer);
+                        delete _uniqueTrainerUsernames[trainer.getUsername()];
                         break;
                     default:
                         throw new Error('Unknown object to delete: ' + objectType);
@@ -146,8 +150,11 @@
         };
         
         Object.prototype.validateNonEmptyString = function (value, variableName) {
-            if (typeof (value) != "string" || !value)
+            if (typeof (value) != "string" || !value.trim()) {
+                
                 throw new Error(variableName + " should be non-empty string");
+               
+            }
         }
         
         Object.prototype.validateIntegerRange = function (value, variableName, minValue, maxValue) {
@@ -160,74 +167,24 @@
                 throw new Error("The " + variableName + " must be positive.");
             }
         }
-        Object.prototype.validateDate = function (value, variableName) {
-            var matches = /^(\d{2})-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d{4})$/.exec(value);
-            // var matches=/^(\d{2})-([A-Za-z]{3})-(\d{4}) $/.exec(value);
-            if (matches == null) {
-                throw new Error("The " + variableName + " not matches.");
-            }
-            var d = matches[1];
-            var m = 0;
-            switch (matches[2]) {
-                case 'Yan':
-                    m = 0;
-                    break;
-                case 'Feb':
-                    m = 1;
-                    break;
-                case 'Mar':
-                    m = 2;
-                    break;
-                case 'Apr':
-                    m = 3;
-                    break;
-                case 'May':
-                    m = 4;
-                    break;
-                case 'Jun':
-                    m = 5;
-                    break;
-                case 'Jul':
-                    m = 6;
-                    break;
-                case 'Aug':
-                    m = 7;
-                    break;
-                case 'Sep':
-                    m = 8;
-                    break;
-                case 'Oct':
-                    m = 9;
-                    break;
-                case 'Nov':
-                    m = 10;
-                    break;
-                case 'Dec':
-                    m = 11;
-                    break;
-            }
-            
-            var y = matches[3];
-            var composedDate = new Date(y, m, d);
-            var isValidDate = composedDate.getDate() == d &&
-            composedDate.getMonth() == m &&
-            composedDate.getFullYear() == y;
-            
-            if (!isValidDate) {
+        Object.prototype.validateDate = function (date, variableName) {
+            var year = date.getFullYear();
+            if (year < 2000 || year > 2020) {
                 throw new Error("The " + variableName + " not valid.");
             }
-
         }
-
+        
         Object.prototype.validateEmail = function (value, variableName) {
-            var re = /\@{1}/;
-            var result = re.test(value);
-            if (!result) {
+            //var re = /^[^@]+@[^@]+$/;slowly
+            //var result = re.test(value);
+            var nm = value.match(/\@/g).length;
+            
+            if (nm !== 1) {
                 throw new Error(variableName + " should be contain @");
             }
         }
         
-        // TODO: implement Trainer class
+        
         var Trainer = (function () {
             
             function Trainer(username, firstName, lastName, email) {
@@ -241,27 +198,31 @@
                 this.validateNonEmptyString(username, "name");
                 this._username = username;
             }
+            
             Trainer.prototype.getUsername = function () {
                 return this._username;
             }
+            
             Trainer.prototype.setFirstName = function (firstName) {
                 if (typeof firstName !== 'undefined') {
                     this.validateNonEmptyString(firstName, "firstName");
                 }
                 this._firstName = firstName;
             }
+            
             Trainer.prototype.getFirstName = function () {
                 return this._firstName;
             }
+            
             Trainer.prototype.setLastName = function (lastName) {
-                
                 this.validateNonEmptyString(lastName, "lastName");
-                
                 this._lastName = lastName;
             }
+            
             Trainer.prototype.getLastName = function () {
                 return this._lastName;
             }
+            
             Trainer.prototype.setEmail = function (email) {
                 if (typeof email !== 'undefined') {
                     this.validateEmail(email, "email");
@@ -269,9 +230,11 @@
                 
                 this._email = email;
             }
+            
             Trainer.prototype.getEmail = function () {
                 return this._email;
             }
+            
             Trainer.prototype.toString = function () {
                 var result = 'Trainer[username=' + this.getUsername();
                 
@@ -284,12 +247,12 @@
                 result += ']';
                 return result;
             }
+            
             return Trainer;
-
         }());
         
         
-       var Training = (function () {
+        var Training = (function () {
             function Training(name, description, trainer, startDate, duration) {
                 if (this.constructor === Training) {
                     throw new Error("Can't instantiate abstract class Training.");
@@ -300,6 +263,7 @@
                 this.setTrainer(trainer);
                 this.setStartDate(startDate);
             }
+            
             Training.prototype.setDescription = function (description) {
                 if (typeof description !== 'undefined') {
                     this.validateNonEmptyString(description, "description");
@@ -318,36 +282,40 @@
                 
                 this._duration = duration;
             }
+            
             Training.prototype.getDuration = function () {
                 return this._duration;
             }
             
             Training.prototype.setName = function (name) {
-                if (typeof name !== 'undefined') {
-                    this.validateNonEmptyString(name, "nameTraining");
-                }
+                this.validateNonEmptyString(name, "nameTraining");
+                
                 this._name = name;
             }
+            
             Training.prototype.getName = function () {
                 return this._name;
             }
             
             Training.prototype.setTrainer = function (trainer) {
-                //  if (typeof trainer !== 'undefined') {
-                //      this.validateNonEmptyString(trainer, "trainer");
-                //    }
+                if (typeof trainer !== 'undefined') {
+                    if (trainer == null) {
+                        throw new Error(trainer + " should be non-empty object");
+                    }
+                }
+                
                 this._trainer = trainer;
             }
+            
             Training.prototype.getTrainer = function () {
                 return this._trainer;
             }
             
             Training.prototype.setStartDate = function (startDate) {
-                
-                var dateFormatted = formatDate(startDate);
-                this.validateDate(dateFormatted, "date");
+                this.validateDate(startDate, "date");
                 this._startDate = startDate;
             }
+            
             Training.prototype.getStartDate = function () {
                 return this._startDate;
             }
@@ -357,10 +325,11 @@
                 if (typeof this._description !== 'undefined') {
                     result += ';description=' + this._description;
                 }
+                
                 if (typeof this._trainer !== 'undefined') {
-                    
                     result += ';trainer=' + this._trainer;
                 }
+                
                 result += ';date=' + formatDate(this._startDate);
                 
                 if (typeof this._duration !== 'undefined') {
@@ -369,6 +338,7 @@
                 
                 return result;
             }
+            
             return Training;
         }());
         
@@ -391,7 +361,7 @@
             return Course;
         }());
         
-   
+        
         var Seminar = (function () {
             function Seminar(name, description, trainer, startDate, duration) {
                 Training.call(this, name, description, trainer, startDate, duration);
@@ -399,10 +369,19 @@
             
             Seminar.extends(Training);
             
+            Seminar.prototype.setDuration = function (duration) {
+                if (typeof duration !== 'undefined') {
+                    if (duration != 1) {
+                        throw new Error("Duration's seminar is alawyes 1");
+                    }
+                }
+                
+                Training.prototype.setDuration.call(this, duration);
+            }
+            
             Seminar.prototype.toString = function () {
                 var nameSeminar = 'Seminar';
                 var result = Training.prototype.toString.call(this);
-                
                 return nameSeminar + result + ']';
             }
             
@@ -423,9 +402,10 @@
                 
                 this._location = location;
             }
+            
             RemoteCourse.prototype.getLocation = function () {
                 return this._location;
-            }       
+            }
             
             RemoteCourse.prototype.toString = function () {
                 var nameRemote = 'Remote';
@@ -434,8 +414,10 @@
                 if (typeof this._location !== 'undefined') {
                     result += ';location=' + this._location;
                 }
+                
                 return nameRemote + result + ']';
             }
+            
             return RemoteCourse;
         }());
         
